@@ -1,25 +1,17 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
+from services.ai_service import run_prompt
 
-app = FastAPI(title="AI Backend Lab Mock", version="0.1.0")
+app = FastAPI(title="AI Backend Lab")
 
-# Request model
 class PromptRequest(BaseModel):
     prompt: str
 
-# Response model
-class PromptResponse(BaseModel):
-    response: str
-
 @app.get("/")
-async def root():
-    return {"message": "AI Backend Lab Mock is running!"}
+def root():
+    return {"status": "ok"}
 
-@app.post("/prompt", response_model=PromptResponse)
-async def run_prompt(request: PromptRequest):
-    # Mock response – replace this with real API call later
-    if not request.prompt:
-        raise HTTPException(status_code=400, detail="Prompt cannot be empty")
-    
-    mock_response = f"Mocked response for your prompt: '{request.prompt}'"
-    return PromptResponse(response=mock_response)
+@app.post("/prompt")
+def prompt_ai(data: PromptRequest):
+    response = run_prompt(data.prompt)
+    return {"response": response}
